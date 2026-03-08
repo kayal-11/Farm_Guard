@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veterinarian Dashboard - FarmGuard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🌾</div>
+          <span>FarmGuard</span>
+        </a>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Main</div>
+          <a href="vet-dashboard.html" class="sidebar-link active">
+            <span class="icon">📊</span> Dashboard
+          </a>
+          <a href="#" class="sidebar-link">
+            <span class="icon">📋</span> Pending Reviews
+          </a>
+          <a href="#" class="sidebar-link">
+            <span class="icon">✓</span> Approved Entries
+          </a>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Management</div>
+          <a href="#" class="sidebar-link">
+            <span class="icon">🏠</span> Assigned Farms
+          </a>
+          <a href="#" class="sidebar-link">
+            <span class="icon">💊</span> Drug Database
+          </a>
+          <a href="alerts.html" class="sidebar-link">
+            <span class="icon">🔔</span> Alerts
+          </a>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Reports</div>
+          <a href="analytics.html" class="sidebar-link">
+            <span class="icon">📈</span> Analytics
+          </a>
+          <a href="audit-log.html" class="sidebar-link">
+            <span class="icon">📜</span> Audit Log
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">PS</div>
+          <div class="user-details">
+            <div class="user-name">Dr. Priya Sharma</div>
+            <div class="user-role">Veterinarian</div>
+          </div>
+        </div>
+        <a href="/logout" class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 0.5rem;">
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Veterinarian Dashboard</h1>
+        <p>Welcome back, Dr. Sharma! You have pending reviews.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon warning">⏳</div>
+          <div class="stat-info">
+            <h3>Pending Reviews</h3>
+            <div class="value">12</div>
+            <div class="trend">5 urgent</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success">✓</div>
+          <div class="stat-info">
+            <h3>Approved Today</h3>
+            <div class="value">8</div>
+            <div class="trend up">↑ 3 from yesterday</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon primary">🏠</div>
+          <div class="stat-info">
+            <h3>Assigned Farms</h3>
+            <div class="value">15</div>
+            <div class="trend">3 new this month</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon accent">📊</div>
+          <div class="stat-info">
+            <h3>Avg. Response Time</h3>
+            <div class="value">2.4h</div>
+            <div class="trend up">↑ 15% faster</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Approvals Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Pending Approvals</h3>
+            <p class="card-description">Review and approve/reject AMU entries from farmers</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entry ID</th>
+                  <th>Farmer</th>
+                  <th>Animal</th>
+                  <th>Drug</th>
+                  <th>Dosage</th>
+                  <th>Submitted</th>
+                  <th>Priority</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AMU-2026-007</td>
+                  <td>Rajesh Kumar</td>
+                  <td>Cattle #312</td>
+                  <td>Oxytetracycline</td>
+                  <td>10mg/kg</td>
+                  <td>2 hours ago</td>
+                  <td><span class="badge badge-danger">Urgent</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Review</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>AMU-2026-008</td>
+                  <td>Meena Devi</td>
+                  <td>Buffalo #45</td>
+                  <td>Amoxicillin</td>
+                  <td>15mg/kg</td>
+                  <td>4 hours ago</td>
+                  <td><span class="badge badge-warning">High</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Review</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>AMU-2026-009</td>
+                  <td>Suresh Patel</td>
+                  <td>Goat #78</td>
+                  <td>Penicillin G</td>
+                  <td>20000 IU/kg</td>
+                  <td>6 hours ago</td>
+                  <td><span class="badge badge-info">Normal</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Review</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>AMU-2026-010</td>
+                  <td>Anita Singh</td>
+                  <td>Cattle #567</td>
+                  <td>Enrofloxacin</td>
+                  <td>5mg/kg</td>
+                  <td>8 hours ago</td>
+                  <td><span class="badge badge-info">Normal</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Review</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.875rem; color: var(--muted-foreground);">Showing 4 of 12 pending entries</span>
+          <a href="#" class="btn btn-outline btn-sm">View All Pending →</a>
+        </div>
+      </div>
+
+      <!-- Recent Activity & Quick Stats -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+        <!-- Recent Decisions -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Recent Decisions</h3>
+              <p class="card-description">Your latest approvals and rejections</p>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="alert-item">
+              <div class="alert-icon success">✓</div>
+              <div class="alert-content">
+                <h4>Approved AMU-2026-005</h4>
+                <p>Enrofloxacin for Cattle #156 - Dosage validated</p>
+                <div class="alert-meta">
+                  <span>📅 Today, 2:30 PM</span>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon success">✓</div>
+              <div class="alert-content">
+                <h4>Approved AMU-2026-003</h4>
+                <p>Amoxicillin for Buffalo #23 - Prescription verified</p>
+                <div class="alert-meta">
+                  <span>📅 Today, 11:15 AM</span>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon urgent">✗</div>
+              <div class="alert-content">
+                <h4>Rejected AMU-2026-004</h4>
+                <p>Dosage exceeds recommended limit for species</p>
+                <div class="alert-meta">
+                  <span>📅 Today, 10:45 AM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Farm Compliance Overview -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Farm Compliance Overview</h3>
+              <p class="card-description">Status of your assigned farms</p>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="alert-item">
+              <div class="alert-icon success">🏠</div>
+              <div class="alert-content">
+                <h4>Kumar Dairy Farm</h4>
+                <p>98.5% compliance rate - Excellent</p>
+                <div class="alert-meta">
+                  <span>24 total entries</span>
+                  <span>•</span>
+                  <span>3 pending</span>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon warning">🏠</div>
+              <div class="alert-content">
+                <h4>Patel Livestock</h4>
+                <p>92.3% compliance rate - Good</p>
+                <div class="alert-meta">
+                  <span>18 total entries</span>
+                  <span>•</span>
+                  <span>2 pending</span>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon info">🏠</div>
+              <div class="alert-content">
+                <h4>Singh Poultry</h4>
+                <p>95.0% compliance rate - Good</p>
+                <div class="alert-meta">
+                  <span>12 total entries</span>
+                  <span>•</span>
+                  <span>1 pending</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Fetch dashboard data on page load
+    async function loadDashboardData() {
+      try {
+        const response = await fetch('/api/vet/dashboard', {
+          credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        
+        const data = await response.json();
+        
+        // Update user info
+        if (data.user) {
+          document.querySelector('.user-name').textContent = data.user.name;
+          const userInitials = data.user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+          document.querySelector('.user-avatar').textContent = userInitials;
+        }
+        
+        // Update page header
+        if (data.user) {
+          const firstName = data.user.name.split(' ')[0];
+          document.querySelector('.page-header p').textContent = `Welcome back, ${firstName}! You have ${data.stats.pending || 0} pending reviews.`;
+        }
+        
+        // Update stats
+        if (data.stats) {
+          document.querySelectorAll('.stat-card')[0].querySelector('.value').textContent = data.stats.pending || 0;
+          document.querySelectorAll('.stat-card')[1].querySelector('.value').textContent = data.stats.approved_today || 0;
+        }
+        
+        // Update pending entries table
+        const tbody = document.querySelector('table tbody');
+        if (data.pending_entries && data.pending_entries.length > 0) {
+          tbody.innerHTML = '';
+          
+          data.pending_entries.forEach(entry => {
+            const row = document.createElement('tr');
+            const priority = entry.created_ago && entry.created_ago.includes('day') ? 'badge-info' : 
+                           entry.created_ago && parseInt(entry.created_ago.split(':')[0]) < 6 ? 'badge-danger' : 'badge-warning';
+            const priorityText = entry.created_ago && entry.created_ago.includes('day') ? 'Normal' : 
+                               entry.created_ago && parseInt(entry.created_ago.split(':')[0]) < 6 ? 'Urgent' : 'High';
+            
+            row.innerHTML = `
+              <td>${entry.entry_id}</td>
+              <td>${entry.farmer_name}</td>
+              <td>${entry.animal_tag}</td>
+              <td>${entry.drug_name}</td>
+              <td>${entry.dosage}${entry.unit}</td>
+              <td>${entry.created_ago || 'Recently'}</td>
+              <td><span class="badge ${priority}">${priorityText}</span></td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="reviewEntry(${entry.id})">Review</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--muted-foreground);">No pending entries to review. All caught up! 🎉</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+    
+    function reviewEntry(entryId) {
+      openReviewModal(entryId);
+    }
+    
+    async function openReviewModal(entryId) {
+      try {
+        // Fetch entry details
+        const response = await fetch(`/api/amu-entries/${entryId}`, {
+          credentials: 'include'
+        });
+        
+        if (response.status === 404) {
+          alert('Entry not found');
+          return;
+        }
+        
+        const entry = await response.json();
+        
+        // Create and show modal
+        const modal = document.createElement('div');
+        modal.id = 'reviewModal';
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
+        
+        modal.innerHTML = `
+          <div style="background: white; border-radius: 8px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+              <h2 style="margin: 0;">Review AMU Entry</h2>
+              <button onclick="closeReviewModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+              <div>
+                <strong>Entry ID:</strong> ${entry.entry_id}
+              </div>
+              <div>
+                <strong>Farmer:</strong> ${entry.farmer_name}
+              </div>
+              <div>
+                <strong>Animal:</strong> ${entry.animal_tag} (${entry.animal_species || 'N/A'})
+              </div>
+              <div>
+                <strong>Drug:</strong> ${entry.drug_name}
+              </div>
+              <div>
+                <strong>Dosage:</strong> ${entry.dosage} ${entry.unit}
+                ${entry.drug_max_dosage ? `<br><small style="color: ${entry.dosage > entry.drug_max_dosage ? 'red' : 'green'};">Max recommended: ${entry.drug_max_dosage} ${entry.unit}</small>` : ''}
+              </div>
+              <div>
+                <strong>Treatment Date:</strong> ${new Date(entry.treatment_date).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Withdrawal End Date:</strong> ${new Date(entry.withdrawal_end_date).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Submitted:</strong> ${entry.created_ago || 'Recently'}
+              </div>
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Veterinary Notes (Optional)</label>
+              <textarea id="vetNotes" rows="4" placeholder="Add any notes or comments about this entry..." style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button onclick="submitReview(${entryId}, 'approved')" class="btn btn-primary" style="flex: 1; background: #22c55e;">
+                ✓ Approve
+              </button>
+              <button onclick="submitReview(${entryId}, 'rejected')" class="btn btn-primary" style="flex: 1; background: #ef4444;">
+                ✗ Reject
+              </button>
+              <button onclick="closeReviewModal()" class="btn btn-outline">Cancel</button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+      } catch (error) {
+        console.error('Error loading entry details:', error);
+        alert('Failed to load entry details. Please try again.');
+      }
+    }
+    
+    function closeReviewModal() {
+      const modal = document.getElementById('reviewModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    async function submitReview(entryId, status) {
+      const notes = document.getElementById('vetNotes')?.value || '';
+      
+      if (status === 'rejected' && !notes.trim()) {
+        if (!confirm('Rejecting without notes. Continue?')) {
+          return;
+        }
+      }
+      
+      try {
+        const response = await fetch(`/api/amu-entries/${entryId}/review`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            status: status,
+            notes: notes
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          alert(`Entry ${status} successfully!`);
+          closeReviewModal();
+          loadDashboardData(); // Refresh dashboard
+        } else {
+          alert('Error: ' + (result.error || 'Failed to submit review'));
+        }
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review. Please try again.');
+      }
+    }
+    
+    // Load data when page loads
+    loadDashboardData();
+  </script>
+</body>
+</html>
