@@ -10,7 +10,7 @@ import os
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['SECRET_KEY'] = 'your-secret-key-here-change-this'
 # Adjust this to your actual DB credentials if needed
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg://postgres:kayaladmin1109@localhost:5432/farmguard'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg://postgres:password@localhost:5432/farmguard'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app, supports_credentials=True)
