@@ -257,6 +257,11 @@
             <input type="date" id="treatmentDate" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
           </div>
           
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Expected Selling Date</label>
+            <input type="date" id="expectedSellingDate" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          
           <div id="withdrawalInfo" style="padding: 1rem; background: #e3f2fd; border-radius: 4px; display: none;">
             <strong>Withdrawal Period:</strong> <span id="withdrawalDays"></span> days<br>
             <strong>Withdrawal End Date:</strong> <span id="withdrawalEndDate"></span>
@@ -273,6 +278,89 @@
   <script>
   // Store the submit button reference
   let submitButton = null;
+
+  function escapeHtml(text) {
+    if (text == null || text === '') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function parseLocalDate(iso) {
+    if (!iso) return null;
+    const part = String(iso).split('T')[0];
+    const parts = part.split('-').map(Number);
+    if (parts.length < 3 || !parts[0]) return null;
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+
+  function updateWithdrawalAlerts(data) {
+    const alertsContainer = document.getElementById('withdrawalAlertsContainer');
+    if (!alertsContainer) return;
+
+    let activeEntries;
+    if (Array.isArray(data.withdrawal_alerts)) {
+      activeEntries = data.withdrawal_alerts.filter(e => e && e.withdrawal_end_date);
+    } else {
+      activeEntries = (data.entries || []).filter(e => {
+        if (e.status !== 'approved' || !e.withdrawal_end_date) return false;
+        const endDate = parseLocalDate(e.withdrawal_end_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return endDate && endDate >= today;
+      });
+      activeEntries.sort((a, b) =>
+        parseLocalDate(a.withdrawal_end_date) - parseLocalDate(b.withdrawal_end_date));
+    }
+
+    if (activeEntries.length > 0) {
+      alertsContainer.innerHTML = '';
+      activeEntries.slice(0, 5).forEach(entry => {
+        const endDate = parseLocalDate(entry.withdrawal_end_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+        let priority = 'info';
+        let icon = 'ℹ️';
+        let titleSuffix = 'Active Withdrawal';
+
+        if (daysRemaining <= 0) {
+          priority = 'urgent';
+          icon = '🚨';
+          titleSuffix = 'Withdrawal Ended - Action Required!';
+        } else if (daysRemaining <= 2) {
+          priority = 'urgent';
+          icon = '⚠️';
+          titleSuffix = 'Withdrawal Ending Soon!';
+        } else if (daysRemaining <= 5) {
+          priority = 'warning';
+          icon = '🕐';
+          titleSuffix = 'Active Withdrawal';
+        }
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-item';
+        const animal = escapeHtml(entry.animal_tag || '');
+        const drug = escapeHtml(entry.drug_name || '');
+        const eid = entry.entry_id ? escapeHtml(String(entry.entry_id)) : '';
+        alertDiv.innerHTML = `
+            <div class="alert-icon ${priority}">${icon}</div>
+            <div class="alert-content">
+              <h4>${animal} - ${titleSuffix}</h4>
+              <p>${drug} treatment - ${daysRemaining <= 0 ? 'Ended' : daysRemaining + ' day' + (daysRemaining !== 1 ? 's' : '') + ' remaining'}</p>
+              <div class="alert-meta">
+                <span>📅 Ends: ${endDate.toLocaleDateString()}</span>
+                ${eid ? `<span>•</span><span>Entry: ${eid}</span>` : ''}
+              </div>
+            </div>
+          `;
+        alertsContainer.appendChild(alertDiv);
+      });
+    } else {
+      alertsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--muted-foreground);">No active withdrawal periods. All clear! ✅</p>';
+    }
+  }
 
   // Fetch dashboard data on page load
   async function loadDashboardData() {
@@ -318,20 +406,30 @@
           const statusClass = entry.status === 'approved' ? 'badge-success' : 
                              entry.status === 'pending' ? 'badge-warning' : 'badge-danger';
           const statusText = entry.status.charAt(0).toUpperCase() + entry.status.slice(1);
+          const vetMsg = entry.vet_notes && String(entry.vet_notes).trim();
+          const vetNotesHtml = vetMsg
+            ? `<div style="font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.35rem; max-width: 18rem; white-space: pre-wrap;">${escapeHtml(vetMsg)}</div>`
+            : '';
           
           row.innerHTML = `
             <td>${entry.entry_id}</td>
             <td>${entry.animal_tag}</td>
             <td>${entry.drug_name}</td>
-            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td><span class="badge ${statusClass}">${statusText}</span>${vetNotesHtml}</td>
           `;
           tbody.appendChild(row);
         });
       } else {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: var(--muted-foreground);">No entries found. Create your first AMU entry to get started.</td></tr>';
       }
+
+      updateWithdrawalAlerts(data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      const wa = document.getElementById('withdrawalAlertsContainer');
+      if (wa) {
+        wa.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--muted-foreground);">Unable to load withdrawal alerts. Please refresh the page.</p>';
+      }
     }
   }
   
@@ -561,8 +659,9 @@
     const dosage = document.getElementById('dosage')?.value;
     const unit = document.getElementById('unit')?.value;
     const treatmentDate = document.getElementById('treatmentDate')?.value;
+    const expectedSellingDate = document.getElementById('expectedSellingDate')?.value;
     
-    console.log('Form values:', { animalId, drugId, dosage, unit, treatmentDate });
+    console.log('Form values:', { animalId, drugId, dosage, unit, treatmentDate, expectedSellingDate });
     
     // Basic validation
     if (!animalId || !drugId || !dosage || !unit || !treatmentDate) {
@@ -602,7 +701,8 @@
           drug_id: parseInt(drugId),
           dosage: parseFloat(dosage),
           unit: unit,
-          treatment_date: treatmentDate
+          treatment_date: treatmentDate,
+          expected_selling_date: expectedSellingDate || null
         })
       });
       

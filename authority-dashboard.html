@@ -85,8 +85,8 @@
           <p>National compliance overview and monitoring</p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
-          <button class="btn btn-outline">📥 Export Report</button>
-          <button class="btn btn-primary">📄 Generate Report</button>
+          <button class="btn btn-outline" id="exportReportBtn">📥 Export Report</button>
+          <button class="btn btn-primary" id="generateReportBtn">📄 Generate Report</button>
         </div>
       </div>
 
@@ -287,6 +287,7 @@ async function loadDashboardData() {
     }
     
     const data = await response.json();
+    window.authorityDashboardData = data;
     
     // Update user info
     if (data.user) {
@@ -537,6 +538,108 @@ function drawRegionalChart(regionalData) {
 
 // Load data when page loads
 loadDashboardData();
+
+function formatReportDate(value) {
+  if (!value) return 'N/A';
+  return new Date(value).toLocaleDateString();
+}
+
+function generateAuthorityReportText(data) {
+  const stats = data.stats || {};
+  const recent = Array.isArray(data.recent_entries) ? data.recent_entries : [];
+  const drugAnalytics = Array.isArray(data.drug_analytics) ? data.drug_analytics : [];
+
+  const lines = [
+    'FarmGuard Authority Compliance Report',
+    `Generated: ${new Date().toLocaleString()}`,
+    '',
+    'National Summary',
+    `- Total Entries: ${stats.total_entries || 0}`,
+    `- Compliance Rate: ${stats.compliance_rate || 0}%`,
+    `- Active Violations: ${stats.violations || 0}`,
+    `- Registered Farms: ${stats.farms || 0}`,
+    '',
+    'Top Antimicrobials',
+    ...(drugAnalytics.length
+      ? drugAnalytics.slice(0, 10).map((d, i) =>
+          `${i + 1}. ${d.drug_name} - ${d.usage_count} entries (${Number(d.percentage || 0).toFixed(1)}%)`)
+      : ['No antimicrobial usage data available.']),
+    '',
+    'Recent AMU Entries',
+    ...(recent.length
+      ? recent.slice(0, 20).map((e) =>
+          `${e.entry_id} | ${e.farmer_name} | ${e.animal_tag} | ${e.drug_name} | ${e.status} | ${formatReportDate(e.reviewed_at || e.created_at)}`)
+      : ['No recent entries available.'])
+  ];
+
+  return lines.join('\n');
+}
+
+function downloadReportFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function handleGenerateReport() {
+  const data = window.authorityDashboardData;
+  if (!data) {
+    alert('Dashboard data is still loading. Please try again in a moment.');
+    return;
+  }
+  const reportText = generateAuthorityReportText(data);
+  downloadReportFile(
+    `authority-report-${new Date().toISOString().slice(0, 10)}.txt`,
+    reportText,
+    'text/plain;charset=utf-8'
+  );
+}
+
+function handleExportReport() {
+  const data = window.authorityDashboardData;
+  if (!data) {
+    alert('Dashboard data is still loading. Please try again in a moment.');
+    return;
+  }
+
+  const headers = ['Entry ID', 'Farmer', 'Animal', 'Drug', 'Dosage', 'Status', 'Reviewed By', 'Date'];
+  const rows = (data.recent_entries || []).map((e) => [
+    e.entry_id || '',
+    e.farmer_name || '',
+    e.animal_tag || '',
+    e.drug_name || '',
+    `${e.dosage ?? ''} ${e.unit ?? ''}`.trim(),
+    e.status || '',
+    e.vet_name || 'Pending',
+    formatReportDate(e.reviewed_at || e.created_at)
+  ]);
+
+  const csvLines = [
+    headers.join(','),
+    ...rows.map((row) =>
+      row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')
+    )
+  ];
+
+  downloadReportFile(
+    `authority-entries-${new Date().toISOString().slice(0, 10)}.csv`,
+    csvLines.join('\n'),
+    'text/csv;charset=utf-8'
+  );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const generateBtn = document.getElementById('generateReportBtn');
+  const exportBtn = document.getElementById('exportReportBtn');
+  if (generateBtn) generateBtn.addEventListener('click', handleGenerateReport);
+  if (exportBtn) exportBtn.addEventListener('click', handleExportReport);
+});
   </script>
 
   <!--<script>

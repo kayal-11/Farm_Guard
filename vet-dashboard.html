@@ -12,7 +12,12 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <a href="index.html" class="logo">
-          <div class="logo-icon">🌾</div>
+          <!--<div class="logo-icon">🌾</div>-->
+          <div class="logo-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 5V10C4 15 7.5 19.5 12 22C16.5 19.5 20 15 20 10V5L12 2Z"/>
+            </svg>
+          </div>
           <span>FarmGuard</span>
         </a>
       </div>
@@ -409,6 +414,9 @@
               </div>
               <div>
                 <strong>Withdrawal End Date:</strong> ${new Date(entry.withdrawal_end_date).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Expected Selling Date:</strong> ${entry.expected_selling_date ? new Date(entry.expected_selling_date).toLocaleDateString() : 'Not provided'}
               </div>
               <div>
                 <strong>Submitted:</strong> ${entry.created_ago || 'Recently'}

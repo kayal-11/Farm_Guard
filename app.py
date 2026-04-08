@@ -67,6 +67,7 @@ class AMUEntry(db.Model):
     unit = db.Column(db.String(20), nullable=False)
     treatment_date = db.Column(db.Date, nullable=False)
     withdrawal_end_date = db.Column(db.Date, nullable=False)
+    expected_selling_date = db.Column(db.Date)
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     vet_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     vet_notes = db.Column(db.Text)
@@ -213,6 +214,7 @@ def amu_entries_api():
             'animal_tag': e.animal.tag_number if e.animal else 'N/A',
             'drug_name': e.drug.name if e.drug else 'N/A',
             'dosage': e.dosage,
+            'expected_selling_date': e.expected_selling_date.isoformat() if e.expected_selling_date else None,
             'status': e.status,
             'created_at': e.created_at.isoformat() if e.created_at else None
         } for e in entries])
@@ -236,6 +238,14 @@ def amu_entries_api():
 
     treatment_date = datetime.strptime(data['treatment_date'], '%Y-%m-%d').date()
     withdrawal_end = treatment_date + timedelta(days=drug.withdrawal_period_days)
+    expected_selling_date = None
+    if data.get('expected_selling_date'):
+        try:
+            expected_selling_date = datetime.strptime(data['expected_selling_date'], '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Expected selling date must be a valid date (YYYY-MM-DD)'}), 400
+        if expected_selling_date < treatment_date:
+            return jsonify({'error': 'Expected selling date cannot be before treatment date'}), 400
 
     entry = AMUEntry(
         entry_id=entry_id,
@@ -246,6 +256,7 @@ def amu_entries_api():
         unit=data['unit'],
         treatment_date=treatment_date,
         withdrawal_end_date=withdrawal_end,
+        expected_selling_date=expected_selling_date,
         status='pending'
     )
 
@@ -390,6 +401,13 @@ def farmer_dashboard_api():
     approved = AMUEntry.query.filter_by(farmer_id=user.id, status='approved').count()
     compliance_rate = (approved / total_entries * 100) if total_entries > 0 else 0
 
+    today = datetime.now().date()
+    withdrawal_alert_rows = AMUEntry.query.filter(
+        AMUEntry.farmer_id == user.id,
+        AMUEntry.status == 'approved',
+        AMUEntry.withdrawal_end_date >= today
+    ).order_by(AMUEntry.withdrawal_end_date.asc()).limit(25).all()
+
     return jsonify({
         'user': {
             'name': user.name,
@@ -409,10 +427,19 @@ def farmer_dashboard_api():
             'dosage': e.dosage,
             'unit': e.unit,
             'status': e.status,
+            'vet_notes': (e.vet_notes or '').strip() or None,
+            'vet_name': e.vet.name if e.vet_id and e.vet else None,
             'treatment_date': e.treatment_date.isoformat() if e.treatment_date else None,
             'withdrawal_end_date': e.withdrawal_end_date.isoformat() if e.withdrawal_end_date else None,
+            'expected_selling_date': e.expected_selling_date.isoformat() if e.expected_selling_date else None,
             'created_at': e.created_at.isoformat() if e.created_at else None
-        } for e in entries]
+        } for e in entries],
+        'withdrawal_alerts': [{
+            'entry_id': e.entry_id,
+            'animal_tag': e.animal.tag_number if e.animal else 'N/A',
+            'drug_name': e.drug.name if e.drug else 'N/A',
+            'withdrawal_end_date': e.withdrawal_end_date.isoformat() if e.withdrawal_end_date else None
+        } for e in withdrawal_alert_rows]
     })
 
 
@@ -458,6 +485,7 @@ def vet_dashboard_api():
             'animal_species': e.animal.species if e.animal else 'N/A',
             'drug_max_dosage': e.drug.max_dosage if e.drug else None,
             'withdrawal_end_date': e.withdrawal_end_date.isoformat() if e.withdrawal_end_date else None,
+            'expected_selling_date': e.expected_selling_date.isoformat() if e.expected_selling_date else None,
             'created_at': e.created_at.isoformat() if e.created_at else None,
             'created_ago': format_time_ago(e.created_at) if e.created_at else None
         } for e in pending_entries]
@@ -834,6 +862,7 @@ def get_entry(entry_id):
         'unit': entry.unit,
         'treatment_date': entry.treatment_date.isoformat() if entry.treatment_date else None,
         'withdrawal_end_date': entry.withdrawal_end_date.isoformat() if entry.withdrawal_end_date else None,
+        'expected_selling_date': entry.expected_selling_date.isoformat() if entry.expected_selling_date else None,
         'status': entry.status,
         'created_at': entry.created_at.isoformat() if entry.created_at else None,
         'created_ago': format_time_ago(entry.created_at) if entry.created_at else None
@@ -912,6 +941,10 @@ def init_db():
             print("Creating database tables...")
             db.create_all()
             print("✓ Tables created successfully!")
+            db.session.execute(db.text(
+                "ALTER TABLE amu_entries ADD COLUMN IF NOT EXISTS expected_selling_date DATE"
+            ))
+            db.session.commit()
 
             if User.query.count() == 0:
                 print("Adding sample data...")
